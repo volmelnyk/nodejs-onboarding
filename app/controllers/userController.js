@@ -211,10 +211,16 @@ exports.changePassword = function (req, res) {
                             .status(404)
                             .send({message: 'No valid entry found for provided email'})
                     }
-                    else if (!confirmedPassword(req.body.password, req.body.confirmedPassword)) {
+                    else if (!confirmedPassword(req.body.newPassword, req.body.confirmedPassword)) {
                         res
                             .status(404)
-                            .send({message: 'Password and confirmPassword not equal'})
+                            .send({message: 'newPassword and confirmPassword not equal'})
+                    }
+                    else if(!confirmedPassword(user[0].password,crypto.createHash('md5').update(req.body.password).digest("hex"))
+                    {
+                        res
+                            .status(404)
+                            .send({message: 'Incorect old password'})
                     }
                     else {
                         user[0].password = crypto.createHash('md5').update(req.body.newPassword).digest("hex");
