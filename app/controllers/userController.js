@@ -47,7 +47,7 @@ exports.addUser = function (req, res) {
     const phonePattern = /^\+380+([0-9]){9}/;
     if (!(req.body.first_name.length >= 2
             && req.body.first_name.length >= 2
-            // && namePatern.test(req.body.first_name)
+             && namePatern.test(req.body.first_name)
             && namePatern.test(req.body.secong_name))) {
         res.status(400).send({message: "Incorrect firts_name or last_name format or lenght"});
     }
@@ -64,15 +64,14 @@ exports.addUser = function (req, res) {
                 first_name: req.body.first_name,
                 secong_name: req.body.secong_name,
                 email: req.body.email,
-                // password: crypto.createHash('md5').update(req.body.password).digest("hex"),
-                password:req.body.password,
+                password: crypto.createHash('md5').update(req.body.password).digest("hex"),
                 date_of_birth: req.body.date_of_birth,
                 createdAt: new Date(),
                 phone: req.body.phone
             }
         );
 
-        sendMail(user.email,'Welcome email!');
+        sendMail(user.email, 'Welcome email!');
 
         user
             .save()
@@ -88,15 +87,15 @@ exports.addUser = function (req, res) {
 }
 
 exports.getUserById = function (req, res) {
-
-
     User.findById(req.params.id)
         .then(function (result) {
             if (result) {
                 res.status(200).send(result);
             }
             else {
-                res.status(404).send({message: 'No valid entry found for provided ID'})
+                res
+                    .status(404)
+                    .send({message: 'No valid entry found for provided ID'})
             }
         })
         .catch(function (error) {
@@ -121,7 +120,7 @@ exports.deletById = function (req, res) {
         })
 }
 
-exports.updateById =  function (req, res) {
+exports.updateById = function (req, res) {
     const namePatern = /^[a-zA-Z\u00C0-\u00ff]+$/;
     const mailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     const phonePattern = /^\+380+([0-9]){9}/;
@@ -139,6 +138,7 @@ exports.updateById =  function (req, res) {
     }
     else {
         req.body.updatedAt = new Date();
+        req.body.password = crypto.createHash('md5').update(req.body.password).digest("hex");
         User.findByIdAndUpdate({_id: req.params.id}, req.body)
             .then(
                 res.status(200).send(req.body)

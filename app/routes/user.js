@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user');
-const mongoose = require('mongoose');
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 
 router.get('/users', userController.getAllUsers);
 
@@ -14,6 +13,7 @@ router.get('/users/:id', userController.getUserById);
 
 router.delete('/users/:id', userController.deletById);
 
-router.patch('/users/:id',userController.updateById);
+router.patch('/users/:id', userController.updateById);
 
+router.post('/login', authController.login);
 module.exports = router;
