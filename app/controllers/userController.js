@@ -2,6 +2,13 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const passGenerator = require('generate-password');
+
+
+const namePatern = /^[a-zA-Z\u00C0-\u00ff]+$/;
+const mailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+const phonePattern = /^\+380+([0-9]){9}/;
+
 
 exports.getAllUsers = function (req, res) {
     User.find()
@@ -42,12 +49,9 @@ var sendMail = function (email, text) {
 
 exports.addUser = function (req, res) {
 
-    const namePatern = /^[a-zA-Z\u00C0-\u00ff]+$/;
-    const mailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    const phonePattern = /^\+380+([0-9]){9}/;
     if (!(req.body.first_name.length >= 2
             && req.body.first_name.length >= 2
-             && namePatern.test(req.body.first_name)
+            && namePatern.test(req.body.first_name)
             && namePatern.test(req.body.secong_name))) {
         res.status(400).send({message: "Incorrect firts_name or last_name format or lenght"});
     }
@@ -57,6 +61,11 @@ exports.addUser = function (req, res) {
     else if (!phonePattern.test(req.body.phone)) {
         res.status(400).send({message: "Incorrect phone format"});
     }
+    else if (!(new Date(new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate())) > new Date(req.body.date_of_birth)) {
+        res.status(400).send({message: "Incorrect email dare of birth"});
+    }
     else {
         var user = new User(
             {
@@ -65,7 +74,7 @@ exports.addUser = function (req, res) {
                 secong_name: req.body.secong_name,
                 email: req.body.email,
                 password: crypto.createHash('md5').update(req.body.password).digest("hex"),
-                date_of_birth: req.body.date_of_birth,
+                date_of_birth: new Date(req.body.date_of_birth),
                 createdAt: new Date(),
                 phone: req.body.phone
             }
@@ -82,7 +91,7 @@ exports.addUser = function (req, res) {
             .catch(function (error) {
                 res.status(500).send({error: "Error in add user to database"})
             });
-        console.log(phonePattern.test(req.body.phone));
+
     }
 }
 
@@ -145,5 +154,77 @@ exports.updateById = function (req, res) {
             ).catch(function (reason) {
             console.log(reason)
         });
+    }
+}
+
+exports.forgotPassword = function (req, res) {
+    if (!mailPattern.test(req.body.email)) {
+        res.status(400).send({message: "Incorrect email format"});
+    }
+    else {
+        var password = passGenerator.generate({
+            lengh: 10
+        })
+
+        User.find({email: req.body.email})
+            .then(
+                function (user) {
+                    if (user.length === 0) {
+                        return res
+                            .status(404)
+                            .send({message: 'No valid entry found for provided email'})
+                    }
+                    else {
+                        user[0].password = crypto.createHash('md5').update(password).digest("hex");
+                        console.log('from change Password');
+                        console.log(user[0]);
+                        User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
+                        sendMail(user[0].email, 'Your new password' + user[0].password);
+
+                        console.log(password);
+                        res
+                            .status(200)
+                            .send({message: 'Password was sent'})
+                    }
+                }
+            )
+    }
+}
+
+var confirmedPassword = function (pass, confirmPass) {
+
+    return (pass === confirmPass) ? true : false
+}
+
+exports.changePassword = function (req, res) {
+
+    if (!mailPattern.test(req.body.email)
+        && req.body.newPassword != undefined) {
+        res.status(400).send({message: "Incorrect email format"});
+    }
+    else {
+        User.find({email: req.body.email})
+            .then(
+                function (user) {
+                    if (user.length === 0) {
+                        res
+                            .status(404)
+                            .send({message: 'No valid entry found for provided email'})
+                    }
+                    else if (!confirmedPassword(req.body.password, req.body.confirmedPassword)) {
+                        res
+                            .status(404)
+                            .send({message: 'Password and confirmPassword not equal'})
+                    }
+                    else {
+                        user[0].password = crypto.createHash('md5').update(req.body.newPassword).digest("hex");
+                        User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
+
+                        res
+                            .status(200)
+                            .send({message: 'Password was changed'})
+                    }
+                }
+            )
     }
 }

@@ -2,7 +2,7 @@ const createError = require('http-errors');
 const boduParser = require('body-parser');
 const logger = require('morgan');
 const express = require('express');
-const route = require('./routes/user');
+const route = require('./routes');
 var app = express();
 
 app.use(logger('dev'));
