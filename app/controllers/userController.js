@@ -216,7 +216,7 @@ exports.changePassword = function (req, res) {
                             .status(404)
                             .send({message: 'newPassword and confirmPassword not equal'})
                     }
-                    else if(!confirmedPassword(user[0].password,crypto.createHash('md5').update(req.body.password).digest("hex"))
+                    else if(!confirmedPassword(user[0].password,crypto.createHash('md5').update(req.body.password).digest("hex")))
                     {
                         res
                             .status(404)
