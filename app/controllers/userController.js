@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const passGenerator = require('generate-password');
 const mail = require('../config/mailConfig');
 const errorMessage = require('../config/message');
+const validation = require('../config/validation');
 
 
 exports.getAllUsers = function (req, res) {
@@ -31,13 +32,13 @@ exports.addUser = function (req, res) {
                         status(200)
                         .send[errorMessage['ok']]
 
-                }
-                )
+                })
                 .catch( (error) => 
                 {
                     res.status(500).send({message: error.message} )
                 })
-         mail.mailSend(user.email, "kjhkjhk");
+
+         mail.mailSend(user.email, "hi email");
 }
 
 exports.getUserById = function (req, res) {
@@ -89,7 +90,7 @@ exports.updateById = function (req, res) {
 }
 
 exports.forgotPassword = function (req, res) {
-    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email)) {
+    if (validation.mailValidation(req.body.email)) {
         res.status(400).send({message: errorMessage['incorrectEmailFormat']});
     }
     else {
@@ -120,11 +121,6 @@ exports.forgotPassword = function (req, res) {
     }
 }
 
-var confirmedPassword = function (pass, confirmPass) {
-
-    return (pass === confirmPass) ? true : false
-}
-
 exports.changePassword = function (req, res) {
 
         User.find({email: req.body.email})
@@ -135,12 +131,12 @@ exports.changePassword = function (req, res) {
                             .status(404)
                             .send({message: errorMessage['imvalidEntryEmail']})
                     }
-                    else if (!confirmedPassword(req.body.newPassword, req.body.confirmedPassword)) {
+                    else if (!validation.confirmed(req.body.newPassword, req.body.confirmedPassword)) {
                         res
                             .status(404)
                             .send({message: errorMessage['invalidConfirmPassword']})
                     }
-                    else if(!confirmedPassword(user[0].password,crypto.createHash('md5').update(req.body.password).digest("hex")))
+                    else if(!validation.confirmed(user[0].password, crypto.createHash('md5').update(req.body.password).digest("hex")))
                     {
                         res
                             .status(404)
