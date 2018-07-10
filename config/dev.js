@@ -38,8 +38,6 @@ function onError(error) {
     }
 }
 
-
-
 function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'
