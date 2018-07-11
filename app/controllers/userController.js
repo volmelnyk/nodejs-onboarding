@@ -24,22 +24,31 @@ exports.getAllUsers = function (req, res) {
 exports.addUser = function (req, res) {
         var user = new User(req.body);
         user._id = new mongoose.Types.ObjectId;
-        user.password = crypto.createHash('md5').update(req.body.password).digest("hex");
-        // user.save()
-        //         .then( ( error)=>
-        //         {
-        //           res.
-        //                 status(200)
-        //                 .send[errorMessage['ok']]
+        bcrypt.hash(password, 10, function(err, hash) {
+            if(error)
+            {
+                throw error
+            }
+            else
+            {
+                user.password = hash;
+            }
+          });
+        user.save()
+                .then( ( error)=>
+                {
+                  res.
+                        status(200)
+                        .send({message: errorMessage.user.ok})
 
-        //         })
-        //         .catch( (error) => 
-        //         {
-        //             res.status(500).send({message: error.message} )
-        //         })
 
+                  mail.sendMeailWElcom(user);    
 
-         mail.sendMeailWElcom(user.mail);
+                })
+                .catch( (error) => 
+                {
+                    res.status(500).send({message: error.message} )
+                })
 }
 
 exports.getUserById = function (req, res) {
@@ -51,7 +60,7 @@ exports.getUserById = function (req, res) {
             else {
                 res
                     .status(404)
-                    .send({message: errorMessage['incorrectID']})
+                    .send({message: errorMessage.user.incorrectID})
             }
         })
         .catch(function (error) {
@@ -80,6 +89,16 @@ exports.updateById = function (req, res) {
 
         req.body.updatedAt = new Date();
         req.body.password = crypto.createHash('md5').update(req.body.password).digest("hex");
+        bcrypt.hash(password, 10, function(err, hash) {
+            if(error)
+            {
+                throw error
+            }
+            else
+            {
+                user[0].password = hash;
+            }
+          });
         User.findByIdAndUpdate({_id: req.params.id}, req.body)
             .then(
                 res.status(200).send(req.body)
@@ -92,7 +111,7 @@ exports.updateById = function (req, res) {
 
 exports.forgotPassword = function (req, res) {
     if (validation.mailValidation(req.body.email)) {
-        res.status(400).send({message: errorMessage['incorrectEmailFormat']});
+        res.status(400).send({message: errorMessage.user.incorrectEmailFormat});
     }
     else {
         var password = passGenerator.generate({
@@ -105,17 +124,18 @@ exports.forgotPassword = function (req, res) {
                     if (user.length === 0) {
                         return res
                             .status(404)
-                            .send({message: errorMessage['invalidMail']})
+                            .send({message: errorMessage.user.invalidMail})
                     }
                     else {
-                        user[0].password = crypto.createHash('md5').update(password).digest("hex");
+
+                          
                         User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
-                        mail.mailSend(user[0].email, 'Your new password' + user[0].password);
+                        mail.sendPasswordForgot(user[0], user[0].password);
 
                         console.log(password);
                         res
                             .status(200)
-                            .send({message: errorMessage['ok']})
+                            .send({message: errorMessage.user.ok})
                     }
                 }
             )
@@ -132,24 +152,34 @@ exports.changePassword = function (req, res) {
                             .status(404)
                             .send({message: errorMessage['user'].invalidMail})
                     }
-                    else if (!validation.confirmed(req.body.newPassword, req.body.confirmedPassword)) {
+                    else if (!validation.confirmed(user[0].password, req.body.password)) {
                         res
                             .status(404)
-                            .send({message: errorMessage['invalidConfirmPassword']})
+                            .send({message: errorMessage.user.invalidConfirmPassword})
                     }
-                    else if(!validation.confirmed(user[0].password, crypto.createHash('md5').update(req.body.password).digest("hex")))
+                    else if(!validation.confirmed(user[0].password, req.body.password))
                     {
                         res
                             .status(404)
-                            .send({message: errorMessage['incorrectOldPAssword']})
+                            .send({message: errorMessage.incorrectOldPAssword})
                     }
                     else {
-                        user[0].password = crypto.createHash('md5').update(req.body.newPassword).digest("hex");
+                        bcrypt.hash(password, 10, function(err, hash) {
+                            if(error)
+                            {
+                                throw error
+                            }
+                            else
+                            {
+                                user[0].password = hash;
+                            }
+                          });
+
                         User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
 
                         res
                             .status(200)
-                            .send({message: errorMessage['ok']})
+                            .send({message: errorMessage.ok})
                     }
                 }
             )

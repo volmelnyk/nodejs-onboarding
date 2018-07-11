@@ -14,7 +14,7 @@ transporter = nodemailer.createTransport({
 
 exports.sendMeailWElcom = function(user){
  
-    console.log(__dirname);
+
     var html = fs.readFileSync(__dirname + '/mailTemplates/welcome.html');
 
     var template = handlebars.compile(html.toString());
@@ -31,6 +31,7 @@ exports.sendMeailWElcom = function(user){
      };
      transporter.sendMail(mailOptions, function (error, response) {
         if (error) {
+            throw error;
             console.log(error);
             callback(error);
         }
