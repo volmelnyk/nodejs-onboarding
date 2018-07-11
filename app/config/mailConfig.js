@@ -1,4 +1,7 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const handlebars = require('handlebars');
+const path = require('path');
 
 transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -9,20 +12,52 @@ transporter = nodemailer.createTransport({
 });
 
 
-exports.mailSend = function(email, text)
-{
-    mailOptions = {
-        from: 'youremail@gmail.com',
-        to: this.email,
-        subject: 'Form my app!',
-        text: text
+exports.sendMeailWElcom = function(user){
+ 
+    console.log(__dirname);
+    var html = fs.readFileSync(__dirname + '/mailTemplates/welcome.html');
+
+    var template = handlebars.compile(html.toString());
+
+    var replacements = {
+         username: user.name
     };
-    transporter.sendMail(mailOptions, function (error, info) {
+    var htmlToSend = template(replacements);
+    var mailOptions = {
+        from: 'ff0537429@gmail.com',
+        to : user.email,
+        subject : 'test subject',
+        html : htmlToSend
+     };
+     transporter.sendMail(mailOptions, function (error, response) {
         if (error) {
             console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
+            callback(error);
         }
     });
 }
+
+exports.sendPasswordForgot = function(user, newPassword){
  
+    var html = fs.readFileSync(__dirname + 'app/mailTemplates/forgotPassword.html');//     ,function(err, data) {
+    
+        var template = handlebars.compile(html);
+     
+
+    var replacements = {
+         password: newPassword
+    };
+    var htmlToSend = template(replacements);
+    var mailOptions = {
+        from: 'ff0537429@gmail.com',
+        to : user.email,
+        subject : 'test subject',
+        html : htmlToSend
+     };
+     transporter.sendMail(mailOptions, function (error, response) {
+        if (error) {
+            console.log(error);
+            callback(error);
+        }
+    });
+}

@@ -1,4 +1,10 @@
 var messages = {
+
+    auth:{
+        unauth: "unauth",
+        authFailed: 'authFailed'
+    },
+    user: {
      invalidMail: 'is not a valid phone number',
      ok: 'Success',
      invalidFirstName: 'first name is not a valid',
@@ -14,6 +20,7 @@ var messages = {
      incorrectOldPAssword: 'Incorect old password',
      incorrectEmailFormat: 'Incorrect email format',
      invalidId: 'No valid entry found for provided ID'
+    }
 }
 
 

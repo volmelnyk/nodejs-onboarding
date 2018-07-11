@@ -25,20 +25,21 @@ exports.addUser = function (req, res) {
         var user = new User(req.body);
         user._id = new mongoose.Types.ObjectId;
         user.password = crypto.createHash('md5').update(req.body.password).digest("hex");
-        user.save()
-                .then( ( error)=>
-                {
-                  res.
-                        status(200)
-                        .send[errorMessage['ok']]
+        // user.save()
+        //         .then( ( error)=>
+        //         {
+        //           res.
+        //                 status(200)
+        //                 .send[errorMessage['ok']]
 
-                })
-                .catch( (error) => 
-                {
-                    res.status(500).send({message: error.message} )
-                })
+        //         })
+        //         .catch( (error) => 
+        //         {
+        //             res.status(500).send({message: error.message} )
+        //         })
 
-         mail.mailSend(user.email, "hi email");
+
+         mail.sendMeailWElcom(user.mail);
 }
 
 exports.getUserById = function (req, res) {
@@ -129,7 +130,7 @@ exports.changePassword = function (req, res) {
                     if (user.length === 0) {
                         res
                             .status(404)
-                            .send({message: errorMessage['imvalidEntryEmail']})
+                            .send({message: errorMessage['user'].invalidMail})
                     }
                     else if (!validation.confirmed(req.body.newPassword, req.body.confirmedPassword)) {
                         res

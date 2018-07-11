@@ -27,14 +27,14 @@ exports.login = function (req, res) {
                 {
                     res
                         .status(401)
-                        .send({message: 'Unauthorized!'})
+                        .send({message: errorMessage.auth.unauth})
                 }
 
             }
         )
         .catch(function (error) {
 
-            res.status(401).send({error: 'Auth failed'})
+            res.status(401).send({error: errorMessage.auth.authFailed})
         });
 }
 
