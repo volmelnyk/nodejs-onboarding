@@ -144,19 +144,19 @@ exports.changePassword = function (req, res) {
                             .status(404)
                             .send({message: errorMessage['user'].invalidMail})
                     }
-                    else if (!validation.confirmed(user[0].password, req.body.password)) {
+                    else if (!validation.confirmed(req.body.password, req.body.newPassword)) {
                         res
                             .status(404)
                             .send({message: errorMessage.user.invalidConfirmPassword})
                     }
-                    else if(!validation.confirmed(user[0].password, req.body.password))
+                    else if(!validation.confirmed(user[0].password, req.body.oldPassword))
                     {
                         res
                             .status(404)
                             .send({message: errorMessage.incorrectOldPAssword})
                     }
                     else {
-                        bcrypt.hash(password, 10, function(err, hash) {
+                        bcrypt.hash(req.body.newPassword, 10, function(err, hash) {
                             if(error)
                             {
                                 throw error
