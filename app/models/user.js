@@ -47,9 +47,7 @@ var userSchema = new Schema({
         },
         required: [true, message['dateRequired']]
     },
-
     password: String,
-
     date_of_birth: {
         type: Date, 
         validate: {
