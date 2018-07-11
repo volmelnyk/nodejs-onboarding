@@ -5,6 +5,7 @@ const passGenerator = require('generate-password');
 const mail = require('../config/mailConfig');
 const errorMessage = require('../config/message');
 const validation = require('../config/validation');
+const bcrypt = require('bcrypt');
 
 
 exports.getAllUsers = function (req, res) {
@@ -24,16 +25,8 @@ exports.getAllUsers = function (req, res) {
 exports.addUser = function (req, res) {
         var user = new User(req.body);
         user._id = new mongoose.Types.ObjectId;
-        bcrypt.hash(password, 10, function(err, hash) {
-            if(error)
-            {
-                throw error
-            }
-            else
-            {
-                user.password = hash;
-            }
-          });
+        user.password = bcrypt.hashSync(req.body.password, 10);
+        console.log(user);
         user.save()
                 .then( ( error)=>
                 {
@@ -88,15 +81,14 @@ exports.deletById = function (req, res) {
 exports.updateById = function (req, res) {
 
         req.body.updatedAt = new Date();
-        req.body.password = crypto.createHash('md5').update(req.body.password).digest("hex");
-        bcrypt.hash(password, 10, function(err, hash) {
+        bcrypt.hash(req.bodypassword, 10, function(err, hash) {
             if(error)
             {
                 throw error
             }
             else
             {
-                user[0].password = hash;
+                req.body.password = hash;
             }
           });
         User.findByIdAndUpdate({_id: req.params.id}, req.body)
@@ -130,7 +122,7 @@ exports.forgotPassword = function (req, res) {
 
                           
                         User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
-                        mail.sendPasswordForgot(user[0], user[0].password);
+                        mail.sendPasswordForgot(user[0], password);
 
                         console.log(password);
                         res
@@ -183,5 +175,4 @@ exports.changePassword = function (req, res) {
                     }
                 }
             )
-    
 }

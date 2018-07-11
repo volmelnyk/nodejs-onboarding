@@ -11,19 +11,23 @@ exports.login = function (req, res) {
     User.find({email: req.body.email})
         .then(
             function (user) {
+            console.log(user);
                 if (user.length === 0) {
                     return res
                         .status(404)
                         .send({message: errorM})
-                }else if(validation.confirmed(user[0].password, crypto.createHash('md5').update(req.body.password).digest("hex")))
+                }
+                else if(validation.confirmed(user[0].password, req.body.password))
                 {
+
                     var token = jwt.sign({
                         id: user[0]._id,
                         email: user[0].email}, 'secretkey', { expiresIn: '30s' });
                     res
                         .status(200)
                         .send({token: token})
-                }else
+                }
+                else
                 {
                     res
                         .status(401)

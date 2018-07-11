@@ -8,8 +8,9 @@ exports.mailValidation = (arg1)=>{
 
 exports.confirmed = function (pass, confirmPass) {
 
-    bcrypt.compare('somePassword', hash, function(err, res) {
+    bcrypt.compare(pass, confirmPass, function(err, res) {
         if(res) {
+
          return true;
         } else {
          return false;
