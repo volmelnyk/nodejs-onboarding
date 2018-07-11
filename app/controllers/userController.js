@@ -2,8 +2,9 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const passGenerator = require('generate-password');
-const mail = require('../controllers/mailConfig');
-const errorMessage = require('../models/message');
+const mail = require('../config/mailConfig');
+const errorMessage = require('../config/message');
+const validation = require('../config/validation');
 
 
 exports.getAllUsers = function (req, res) {
@@ -31,13 +32,13 @@ exports.addUser = function (req, res) {
                         status(200)
                         .send[errorMessage['ok']]
 
-                }
-                )
+                })
                 .catch( (error) => 
                 {
                     res.status(500).send({message: error.message} )
                 })
-         mail.mailSend(user.email, "kjhkjhk");
+
+         mail.mailSend(user.email, "hi email");
 }
 
 exports.getUserById = function (req, res) {
@@ -89,8 +90,8 @@ exports.updateById = function (req, res) {
 }
 
 exports.forgotPassword = function (req, res) {
-    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email)) {
-        res.status(400).send({message: "Incorrect email format"});
+    if (validation.mailValidation(req.body.email)) {
+        res.status(400).send({message: errorMessage['incorrectEmailFormat']});
     }
     else {
         var password = passGenerator.generate({
@@ -107,8 +108,6 @@ exports.forgotPassword = function (req, res) {
                     }
                     else {
                         user[0].password = crypto.createHash('md5').update(password).digest("hex");
-                        console.log('from change Password');
-                        console.log(user[0]);
                         User.findByIdAndUpdate({_id: user[0]._id}, user[0]).then();
                         mail.mailSend(user[0].email, 'Your new password' + user[0].password);
 
@@ -122,36 +121,26 @@ exports.forgotPassword = function (req, res) {
     }
 }
 
-var confirmedPassword = function (pass, confirmPass) {
-
-    return (pass === confirmPass) ? true : false
-}
-
 exports.changePassword = function (req, res) {
 
-    if (!mailPattern.test(req.body.email)
-        && req.body.newPassword != undefined) {
-        res.status(400).send({message: "Incorrect email format"});
-    }
-    else {
         User.find({email: req.body.email})
             .then(
                 function (user) {
                     if (user.length === 0) {
                         res
                             .status(404)
-                            .send({message: 'No valid entry found for provided email'})
+                            .send({message: errorMessage['imvalidEntryEmail']})
                     }
-                    else if (!confirmedPassword(req.body.newPassword, req.body.confirmedPassword)) {
+                    else if (!validation.confirmed(req.body.newPassword, req.body.confirmedPassword)) {
                         res
                             .status(404)
-                            .send({message: 'newPassword and confirmPassword not equal'})
+                            .send({message: errorMessage['invalidConfirmPassword']})
                     }
-                    else if(!confirmedPassword(user[0].password,crypto.createHash('md5').update(req.body.password).digest("hex")))
+                    else if(!validation.confirmed(user[0].password, crypto.createHash('md5').update(req.body.password).digest("hex")))
                     {
                         res
                             .status(404)
-                            .send({message: 'Incorect old password'})
+                            .send({message: errorMessage['incorrectOldPAssword']})
                     }
                     else {
                         user[0].password = crypto.createHash('md5').update(req.body.newPassword).digest("hex");
@@ -159,9 +148,9 @@ exports.changePassword = function (req, res) {
 
                         res
                             .status(200)
-                            .send({message: 'Password was changed'})
+                            .send({message: errorMessage['ok']})
                     }
                 }
             )
-    }
+    
 }
