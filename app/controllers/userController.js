@@ -24,9 +24,9 @@ exports.getAllUsers = function (req, res) {
 exports.addUser = function (req, res) {
         var user = new User(req.body);
         user._id = new mongoose.Types.ObjectId;
-        user.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+        user.local = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
         user.save()
-                .then( ( error)=>
+                .then( ( )=>
                 {
                   res.
                         status(200)

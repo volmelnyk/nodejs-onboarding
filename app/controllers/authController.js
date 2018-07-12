@@ -3,7 +3,17 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const errorMessage = require('../config/message');
-const validation = require('../config/validation')
+const validation = require('../config/validation');
+const { JWT_SECRET } = require('../config/auth');
+
+var signToken =  function (user) {
+    return jwt.sign({
+      iss: 'CodeWorkr',
+      sub: user.id,
+      iat: new Date().getTime(), // current time
+      exp: new Date().setDate(new Date().getDate() + 1) // current time + 1 day ahead
+    }, JWT_SECRET);
+  }
 
 exports.login = function (req, res) {
     
@@ -41,4 +51,11 @@ exports.login = function (req, res) {
         });
 }
 
+exports.facebookOAuth = function (req, res) {
+    
+    const token = signToken(req.user);
+    res.status(200).send({ token: token });
+  }
+
+ 
 

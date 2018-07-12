@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
-const message = require('../config/message')
+const message = require('../config/message');
+var bcrypt = require('bcrypt');
 
 const Schema = mongoose.Schema;
 
 var userSchema = new Schema({
 
     _id: mongoose.Schema.ObjectId,
+
     first_name: {
         type: String,
          required: true,
@@ -15,6 +17,7 @@ var userSchema = new Schema({
             message: '{VALUE}'+ + message['invalidFirstName']
             }
         },
+
     secong_name: {
         type: String, 
         required: [true, ],
@@ -26,28 +29,23 @@ var userSchema = new Schema({
             message: '{VALUE}' + message['invalidSecondName']
         }
     },
-    email: {
-        type: String, 
-        required: [true, 'User date required'], 
-        unique: true,
-        validate: {
-            validator: function(v) {
-                return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+
+
+        email: {
+                type: String, 
+                required: [true, 'User date required'], 
+                unique: true,
+                validate: {
+                    validator: function(v) {
+                        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+                    },
+                    message: '{VALUE}' + message['invalidMail']
+                }
             },
-            message: '{VALUE}' + message['invalidMail']
-        }
-        },
-    phone: {
-        type: String,
-        validate: {
-          validator: function(v) {
-            return /^\+380+([0-9]){9}/.test(v);
-          },
-          message: '{VALUE}' + message['invalidMail']
-        },
-        required: [true, message['dateRequired']]
-    },
-    password: String,
+
+        password: String,
+
+
     date_of_birth: {
         type: Date, 
         validate: {
@@ -59,9 +57,50 @@ var userSchema = new Schema({
         },
         required: [true, message['dateRequired']]
          },
+
+     phone: {
+            type: String,
+            validate: {
+              validator: function(v) {
+                return /^\+380+([0-9]){9}/.test(v);
+              },
+              message: '{VALUE}' + message['invalidMail']
+            }
+        },
+
     createdAt: Date,
+
     updatedAt: Date,
 
+    facebook: {
+        id: {
+          type: String
+        },
+
+        email: {
+          type: String,
+          lowercase: true
+        }
+      },
+
+      google: {
+        id: {
+          type: String
+        },
+        
+        email: {
+          type: String,
+          lowercase: true
+        }
+    }
 });
+
+userSchema.methods.generateHash = function(password){
+	return bcrypt.hashSync(password, bcrypt.genSaltSync(9));
+}
+
+userSchema.methods.validPassword = function(password){
+	return bcrypt.compareSync(password, this.local.password);
+}
 
 module.exports = mongoose.model('User',userSchema);
