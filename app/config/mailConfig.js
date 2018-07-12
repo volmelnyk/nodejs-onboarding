@@ -14,7 +14,6 @@ transporter = nodemailer.createTransport({
 
 exports.sendMeailWElcom = function(user){
  
-
     var html = fs.readFileSync(__dirname + '/mailTemplates/welcome.html');
 
     var template = handlebars.compile(html.toString());
@@ -40,19 +39,20 @@ exports.sendMeailWElcom = function(user){
 
 exports.sendPasswordForgot = function(user, newPassword){
  
-    var html = fs.readFileSync(__dirname + 'app/mailTemplates/forgotPassword.html');//     ,function(err, data) {
+    var html = fs.readFileSync(__dirname + '/mailTemplates/forgotPassword.html');
     
-        var template = handlebars.compile(html);
+        var template = handlebars.compile(html.toString());
      
 
     var replacements = {
          password: newPassword
     };
     var htmlToSend = template(replacements);
+    console.log(htmlToSend);
     var mailOptions = {
         from: 'ff0537429@gmail.com',
         to : user.email,
-        subject : 'test subject',
+        subject : 'Forgot Password',
         html : htmlToSend
      };
      transporter.sendMail(mailOptions, function (error, response) {

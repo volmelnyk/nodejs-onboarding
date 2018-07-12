@@ -6,20 +6,19 @@ const errorMessage = require('../config/message');
 const validation = require('../config/validation')
 
 exports.login = function (req, res) {
-
-
+    
     User.find({email: req.body.email})
         .then(
             function (user) {
-            console.log(user);
+                console.log('confirmation');
+                console.log(validation.confirmed(req.body.password, user[0].password));
                 if (user.length === 0) {
                     return res
                         .status(404)
-                        .send({message: errorM})
+                        .send({message: errorMessage.user.imvalidEntryEmail})
                 }
-                else if(validation.confirmed(user[0].password, req.body.password))
+               if(validation.confirmed(req.body.password, user[0].password))
                 {
-
                     var token = jwt.sign({
                         id: user[0]._id,
                         email: user[0].email}, 'secretkey', { expiresIn: '30s' });

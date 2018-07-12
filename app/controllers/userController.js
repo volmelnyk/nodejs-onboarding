@@ -21,12 +21,10 @@ exports.getAllUsers = function (req, res) {
             })
 };
 
-
 exports.addUser = function (req, res) {
         var user = new User(req.body);
         user._id = new mongoose.Types.ObjectId;
-        user.password = bcrypt.hashSync(req.body.password, 10);
-        console.log(user);
+        user.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
         user.save()
                 .then( ( error)=>
                 {
@@ -69,7 +67,7 @@ exports.deletById = function (req, res) {
         .then(function (result) {
             res
                 .status(200)
-                .send(result);
+                .send({message: errorMessage.user.ok});
         })
         .catch(function (error) {
             res.status(500).json({
@@ -116,7 +114,7 @@ exports.forgotPassword = function (req, res) {
                     if (user.length === 0) {
                         return res
                             .status(404)
-                            .send({message: errorMessage.user.invalidMail})
+                            .send({message: errorMessage.user.imvalidEntryEmail})
                     }
                     else {
 
