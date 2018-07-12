@@ -25,7 +25,7 @@ exports.sendMeailWElcom = function(user){
     var mailOptions = {
         from: 'ff0537429@gmail.com',
         to : user.email,
-        subject : 'test subject',
+        subject : 'New customer',
         html : htmlToSend
      };
      transporter.sendMail(mailOptions, function (error, response) {
