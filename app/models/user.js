@@ -10,36 +10,36 @@ var userSchema = new Schema({
 
     first_name: {
         type: String,
-         required: true,
-          min: [2, message['firstNameRequired']],
+         required: [true, message.user.firstNameRequired],
+          min: [2, message.user.toShortFirstName],
           validate:{
             validator: function(v) { return /^[a-zA-Z\u00C0-\u00ff]+$/.test(v);},
-            message: '{VALUE}'+ + message['invalidFirstName']
+            message: '{VALUE}'+ message.user.invalidFirstName
             }
         },
 
     secong_name: {
         type: String, 
-        required: [true, ],
-        min: [2, message['secondNameRequired']],
+        required: [true, message.user.secondNameRequired],
+        min: [2, message.user.toShortSecondName],
         validate:{
             validator: function(secondName) {
                 return /^[a-zA-Z\u00C0-\u00ff]+$/.test(secondName);
             },
-            message: '{VALUE}' + message['invalidSecondName']
+            message: '{VALUE}' + message.user.invalidSecondName
         }
     },
 
 
         email: {
                 type: String, 
-                required: [true, 'User date required'], 
+                required: [true, message.user.emailRequired], 
                 unique: true,
                 validate: {
                     validator: function(v) {
                         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
                     },
-                    message: '{VALUE}' + message['invalidMail']
+                    message: '{VALUE}' + message.user.imvalidEntryEmail
                 }
             },
 
@@ -53,9 +53,8 @@ var userSchema = new Schema({
             {
                 return date < new Date();
             },
-            message: '{VALUE}' + message['incorrectDate']
-        },
-        required: [true, message['dateRequired']]
+            message: '{VALUE}'
+        }
          },
 
      phone: {
@@ -64,7 +63,7 @@ var userSchema = new Schema({
               validator: function(v) {
                 return /^\+380+([0-9]){9}/.test(v);
               },
-              message: '{VALUE}' + message['invalidMail']
+              message: '{VALUE}'
             }
         },
 
@@ -76,31 +75,14 @@ var userSchema = new Schema({
         id: {
           type: String
         },
-
-        email: {
-          type: String,
-          lowercase: true
-        }
       },
 
       google: {
         id: {
           type: String
-        },
-        
-        email: {
-          type: String,
-          lowercase: true
         }
     }
 });
 
-userSchema.methods.generateHash = function(password){
-	return bcrypt.hashSync(password, bcrypt.genSaltSync(9));
-}
-
-userSchema.methods.validPassword = function(password){
-	return bcrypt.compareSync(password, this.local.password);
-}
 
 module.exports = mongoose.model('User',userSchema);

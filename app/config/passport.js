@@ -3,16 +3,13 @@ const FacebookTokenStrategy = require('passport-facebook-token');
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const User = require('../models/user');
 const config = require('../config/auth');
+const mongoose = require('mongoose');
 
 passport.use('googleToken', new GooglePlusTokenStrategy({
     clientID: config.oauth.google.clientID,
     clientSecret: config.oauth.google.clientSecret
   },  (accessToken, refreshToken, profile, done) => {
     try {
-      console.log('profile', profile);
-      console.log('accessToken', accessToken);
-      console.log('refreshToken', refreshToken);
-  
        User.findOne({ "google.id": profile.id })     
        .then((existingUser) => {
         if (existingUser) {
@@ -20,15 +17,26 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
         }}
       );
   
+
       const newUser = new User({
-        method: 'google',
+
+        _id: new mongoose.Types.ObjectId, 
+
+        email: profile.emails[0].value,
+        
+        first_name: profile._json.first_name,
+    
+        secong_name: profile._json.last_name,
+
         google: {
           id: profile.id,
-          email: profile.emails[0].value
         }
       });
   
       newUser.save();
+
+      done(null, newUser);
+
       done(null, newUser);
     } catch(error) {
       done(error, false, error.message);
@@ -40,10 +48,6 @@ passport.use('facebookToken', new FacebookTokenStrategy({
     clientSecret: config.oauth.facebook.clientSecret
   }, (accessToken, refreshToken, profile, done) => {
     try {
-      console.log('profile', profile);
-      console.log('accessToken', accessToken);
-      console.log('refreshToken', refreshToken);
-      
 
       User.findOne({ "facebook.id": profile.id })
       .then((existingUser) => {
@@ -52,20 +56,23 @@ passport.use('facebookToken', new FacebookTokenStrategy({
       }}
     );
       const newUser = new User({
-        method: 'facebook',
+
+        _id: new mongoose.Types.ObjectId, 
+
+        email: profile.emails[0].value,
+        
+        first_name: profile._json.first_name,
+    
+        secong_name: profile._json.last_name,
+
         facebook: {
           id: profile.id,
-          email: profile.emails[0].value,
-        },
-        
-        first_name: profile.first_name,
-    
-        secong_name: profile.last_name
+        }
       });
   
-     newUser.save();
+      newUser.save();
 
-      //done(null, newUser);
+      done(null, newUser);
     } catch(error) {
       done(error, false, error.message);
     }
