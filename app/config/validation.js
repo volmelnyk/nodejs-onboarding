@@ -7,6 +7,5 @@ exports.mailValidation = (arg1)=>{
 }
 
 exports.confirmed = function (pass, confirmPass) {
-
     return bcrypt.compareSync(pass,confirmPass);
 }

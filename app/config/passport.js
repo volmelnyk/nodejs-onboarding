@@ -5,6 +5,8 @@ const User = require('../models/user');
 const config = require('../config/auth');
 const mongoose = require('mongoose');
 
+// make general method for duplicates!
+
 passport.use('googleToken', new GooglePlusTokenStrategy({
     clientID: config.oauth.google.clientID,
     clientSecret: config.oauth.google.clientSecret
@@ -20,11 +22,11 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
 
       const newUser = new User({
 
-        _id: new mongoose.Types.ObjectId, 
+        _id: new mongoose.Types.ObjectId, // remove 
 
-        email: profile.emails[0].value,
+        email: profile.emails[0].value,  // remove
         
-        first_name: profile._json.first_name,
+        first_name: profile._json.first_name, // as well
     
         secong_name: profile._json.last_name,
 
@@ -37,7 +39,7 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
 
       done(null, newUser);
 
-      done(null, newUser);
+      done(null, newUser); // why twice ?
     } catch(error) {
       done(error, false, error.message);
     }
@@ -55,6 +57,7 @@ passport.use('facebookToken', new FacebookTokenStrategy({
         return done(null, existingUser);
       }}
     );
+
       const newUser = new User({
 
         _id: new mongoose.Types.ObjectId, 
