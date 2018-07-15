@@ -1,24 +1,27 @@
 var messages = {
-    auth : {
-         unuath : "Unauthorized!",
-         authFailed : 'Incorrect email or password!'
-     },
-     user: {
-        invalidMail : 'is not a valid email',
-        emailRequired: 'User emal required',
+
+    auth:{
+        unauth: 'unauth',
+        authFailed: 'authFailed'
+    },
+    user: {
+        invalidMail: 'is not a valid phone number',
         ok: 'Success',
         invalidFirstName: 'first name is not a valid',
         invalidSecondName: 'second name is not a valid',
         incorrectID: 'Id user is incorrect',
-        incorrectDate: 'ç',
+        incorrectDate: 'Incorrect date',
         phoneRequired: 'User phone number required',
         dateRequired: 'User date required',
         secondNameRequired: 'User second name required',
         firstNameRequired: 'User first name required',
-        toShortFirstName: 'First name is to short',
-        toShortSecondName: 'Second name is to short',
-        incorrectPhone: 'is not a valid email'
+        imvalidEntryEmail: 'No valid entry found for provided email',
+        invalidConfirmPassword:'New password and confirm password not equal',
+        incorrectOldPAssword: 'Incorect old password',
+        incorrectEmailFormat: 'Incorrect email format',
+        invalidId: 'No valid entry found for provided ID'
     }
+};
 
-}
+
 module.exports = messages;

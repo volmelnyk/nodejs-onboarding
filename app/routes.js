@@ -4,7 +4,7 @@ const userController = require('../app/controllers/userController');
 const authController = require('../app/controllers/authController');
 
 const passport = require('passport');
-const passportConf  = require('../app/config/passport')
+const passportConf  = require('./../config/passport');
 
 router.get('/users', userController.getAllUsers);
 

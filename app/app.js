@@ -3,12 +3,14 @@ const boduParser = require('body-parser');
 const logger = require('morgan');
 const express = require('express');
 const route = require('./routes');
+const passport = require('passport');
 
 var app = express();
 
 app.use(logger('dev'));
 app.use(boduParser.json());
 app.use(boduParser.urlencoded({extended: false}));
+
 
 
 app.use('/api/v1', route);
