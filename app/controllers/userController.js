@@ -16,10 +16,10 @@ exports.getAllUsers =  (req, res) => {
                 .status(200)
                 .send(value);
         })
-        .catch((error) => {
+        .catch(() => {
             res 
                 .status(500)
-                .send({error: error});
+                .send({error: errorMessage.user.getAllErorr});
         });
 };
 
@@ -28,21 +28,21 @@ exports.addUser = (req, res) => {
     var user = new User(req.body);
     user.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
-    // user.save()
-    // .then( ( )=>
-    // {
-        
-    //   res.
-    //         status(200)
-    //         .send({message: errorMessage.user.ok})
-    // })
-    // .catch( (error) => 
-    // {
-    //     res
-    //         .status(500)
-    //         .send({message: error.message} )
-    // });
-    mail.sendWelcomeMail(user);    
+    user.save()
+    .then( ( ) =>
+    {   
+        mail.sendWelcomeMail(user);    
+        res.
+            status(200)
+            .send({message: errorMessage.user.ok})
+    })
+    .catch( (error) => 
+    {
+        res
+            .status(500)
+            .send({message: error.message} )
+    });
+
 };
 
 exports.getUserById = (req, res) => {
@@ -58,7 +58,7 @@ exports.getUserById = (req, res) => {
             }
         })
         .catch((error) => {
-            res.status(500).send({error: error});
+            res.status(500).send({error: error.message});
         });
 };
 
@@ -74,30 +74,22 @@ exports.deletById = (req, res) => {
   
 };
 
-exports.updateById = function (req, res) {
+//////
+exports.updateById = (req, res) => {
 
     req.body.updatedAt = new Date();
-    bcrypt.hash(req.bodypassword, 10, function(error, hash) {
-        if(error)
-        {
-            throw errorMessage.someProblemWithEncryptPassword;
+
+    User.findByIdAndUpdate({_id: req.params.id}, req.body,{ runValidators: true }, function(err) {
+        if(err){
+            res.status(500).send(err.message);
         }
-        else
-        {
-            req.body.password = hash;
-        }
-    });
-    User.findByIdAndUpdate({_id: req.params.id}, req.body)
-        .then(
+        else{
             res.status(200).send(req.body)
-        ).catch(() =>
-        {
-            res.status(500).send({message: errorMessage.user.incorrectID} );
-        });
-    
+        }
+      });
 };
 
-exports.forgotPassword = function (req, res) {
+exports.forgotPassword = (req, res) => {
     if (validation.mailValidation(req.body.email)) {
         res.status(400).send({message: errorMessage.user.incorrectEmailFormat});
     }
@@ -105,29 +97,27 @@ exports.forgotPassword = function (req, res) {
         var password = passGenerator.generate({
             lengh: 10
         });
-
         User.findOne({email: req.body.email})
             .then(
                 function (user) {
-                    if (user.length === 0) {
+                    if (!user) {
                         return res
                             .status(404)
                             .send({message: errorMessage.user.imvalidEntryEmail});
                     }
                     else {                       
-                        User.findByIdAndUpdate({_id: user._id}, user).then();
+                        user.password = password
                         mail.sendPasswordForgot(user, password);
-       
+                        User.findByIdAndUpdate({_id: user._id}, user).then();
                         res
                             .status(200)
                             .send({message: errorMessage.user.ok});
                     }
-                }
-            );
+                });
     }
 };
 
-exports.changePassword = function (req, res) {
+exports.changePassword = (req, res) => {
 
     User.findOne({email: req.body.email})
         .then(
@@ -153,8 +143,7 @@ exports.changePassword = function (req, res) {
                         if(error)
                         {
                             throw errorMessage.user.someProblemWithEncryptPassword;
-                        }
-                        
+                        }             
                         else
                         {
                             user.password = hash;

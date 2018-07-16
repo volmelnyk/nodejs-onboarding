@@ -14,7 +14,7 @@ var userSchema = new Schema({
         required: [true, message.user.firstNameRequired],
         min: [2, message.user.toShortFirstName],
         validate:{
-            validator: function(v) { return /^[a-zA-Z\u00C0-\u00ff]+$/.test(v);},
+            validator: (v) => { return /^[a-zA-Z\u00C0-\u00ff]+$/.test(v);},
             message: '{VALUE}'+ message.user.invalidFirstName
         }
     },
@@ -24,20 +24,19 @@ var userSchema = new Schema({
         required: [true, message.user.secondNameRequired],
         min: [2, message.user.toShortSecondName],
         validate:{
-            validator: function(secondName) {
+            validator: (secondName) => {
                 return /^[a-zA-Z\u00C0-\u00ff]+$/.test(secondName);
             },
             message: '{VALUE}' + message.user.invalidSecondName
         }
     },
-
-
+    
     email: {
         type: String, 
         required: [true, message.user.emailRequired], 
         unique: true,
         validate: {
-            validator: function(v) {
+            validator: (v) => {
                 return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
             },
             message: '{VALUE}' + message.user.imvalidEntryEmail
@@ -49,8 +48,7 @@ var userSchema = new Schema({
     date_of_birth: {
         type: Date, 
         validate: {
-            validator: function(date)
-            {
+            validator: (date) => {
                 return date < new Date();
             },
             message: '{VALUE}'
@@ -60,7 +58,7 @@ var userSchema = new Schema({
     phone: {
         type: String,
         validate: {
-            validator: function(v) {
+            validator: (v) => {
                 return /^\+380+([0-9]){9}/.test(v);
             },
             message: '{VALUE}'
@@ -77,7 +75,7 @@ var userSchema = new Schema({
     facebook: {
         id: {
             type: String
-        },
+        }
     },
 
     google: {
@@ -85,5 +83,9 @@ var userSchema = new Schema({
     }
 });
 
+userSchema.pre('findOneAndUpdate', function(next) {
+    this.options.runValidators = true;
+    next();
+  });
 
 module.exports = mongoose.model('User',userSchema);

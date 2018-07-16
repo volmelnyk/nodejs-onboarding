@@ -1,33 +1,30 @@
 const mailSenser = require('./../../config/mailConfig')
 const fs = require('fs');
+const jade = require('jade');
 
 var sendMail = function(title, email, htmlToSend)
 {
-    var mailOptions = {
+     mailSenser.transporter.sendMail({
         from: mailSenser.senderMail,
         to : email,
         subject : title,
         html : htmlToSend
-     };
-
-     mailSenser.transporter.sendMail(mailOptions);
+     });
 }
 
 exports.sendWelcomeMail = function(user){
  
-    var html = fs.readFileSync( './../../views/mailTemplates/welcome.html');
+    var template = jade.renderFile(process.cwd() + '/nodejs-onboarding/views/mailTemplates/welcome.jade' );
 
-    var template = handlebars.compile(html.toString());
-
-    console.log(user.email);
-    sendMail('New cisomer',user.email, template());
+    sendMail('New customer',user.email, template);
 };
 
 exports.sendPasswordForgot = function(user, newPassword){
  
-    var html = fs.readFileSync(__dirname + './../nodejs-onboarding/views/mailTemplates/forgotPassword.html');
-    
-    var template = handlebars.compile(html.toString());
+    var template = jade.renderFile(process.cwd() + 
+                        '/nodejs-onboarding/views/mailTemplates/forgotPassword.jade',
+                        {newPassword: newPassword});
 
-    sendMail('Forget password', user.mail, template({newPassword: newPassword}));
+    console.log(template);
+    sendMail('Forget password', user.mail, template);
 };

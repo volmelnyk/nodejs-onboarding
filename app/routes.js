@@ -4,7 +4,7 @@ const userController = require('../app/controllers/userController');
 const authController = require('../app/controllers/authController');
 
 const passport = require('passport');
-const passportConf  = require('./../config/passport');
+const passportConf  = require('./../config/socialAuthConfig/passport');
 
 router.get('/users', userController.getAllUsers);
 
@@ -14,7 +14,7 @@ router.get('/users/:id', userController.getUserById);
 
 router.delete('/users/:id', userController.deletById);
 
-router.patch('/users/:id', userController.updateById);
+router.put('/users/:id', userController.updateById);
 
 router.post('/forgotPassword', userController.forgotPassword);
 

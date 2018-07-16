@@ -16,14 +16,14 @@ exports.login = (req, res) => {
     User.findOne({email: req.body.email})
         .then(
             function (user) {
-                if (user.length === 0) {
+                if (!user) {
                     return res
                         .status(404)
                         .send({message: errorMessage.user.imvalidEntryEmail});
                 }
-                if(validation.confirmed(req.body.password, user[0].password))
+                if(validation.confirmed(req.body.password, user.password))
                 {
-                    var token = jwt.signToken(user[0]);
+                    var token = jwt.signToken(user);
                     res
                         .status(200)
                         .send({token: token});
@@ -52,7 +52,7 @@ exports.facebookOAuth = (req, res) => {
         .send({ token: signToken(req.user) });
 };
 
-exports.googleOAuth =  (req, res) => {
+exports.googleOAuth = (req, res) => {
      
     res
         .status(200)
